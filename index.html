@@ -1,0 +1,387 @@
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>How Browsers Work</title>
+		<style>
+		body {
+			color: #404040;
+			font-weight: 300;
+			font-family: Helvetica,Arial,sans-serif;
+			font-size: 16px;
+		}
+		em {color:red;}
+		a {
+			text-decoration: none;
+		}
+
+		.tab ul {
+			list-style: none;
+			padding-left: 10px;
+			line-height: 1.625em;
+		}
+		.stage_tit {
+			font-size: 10px;
+			color: #fff;
+			/*width: 100px;*/
+			display: inline-block;
+			border-radius: 10px;
+			padding: 5px;
+		}		
+
+		.square_list {
+			position: relative;
+			text-decoration: underline;
+			color: #da2e75;
+			/*position: relative;*/
+			padding-left: 20px;
+		}
+		.square_list:before {
+	    content: "\f101";
+	    font-family: icons;
+	    font-size: 4px;
+	    display: block;
+	    width: 16px;
+	    text-align: left;
+	    font-weight: 400;
+	    line-height: 26px;
+	    position: absolute;
+	    top: 0;
+	    left: 0;
+		}
+		.note_block.square_list:before {
+			top: 24px;
+		}
+		.arrow_down {
+			width: 30px;
+			position: relative;
+			height: 10px;
+		}
+		.arrow_down span {			
+			display: inline-block;
+			height: 20px;
+			border-left: 5px solid red;
+			margin: 10px 0 0 30px;
+		}
+		.stage_load li:last-child:after {
+			content: 'HTML, CSS';
+		}		
+		.stage_parse li:last-child:after {
+			content: 'DOM tree, CSSOM tree';
+		}				
+		.stage_render li:last-child:after {
+			content: 'a render tree';
+		}		
+		.stage_layout > li:last-child:after {
+			content: 'a box model (a render tree)';
+		}
+		.tab ul li:last-child:after {
+			position: absolute;
+			top: 8px;
+			left: 45px;
+			display: inline-block;
+			width: 200px;
+			font-size: 10px;
+			font-weight: bold;
+
+		}
+		.note_block {
+			border-top: 1px solid #e0e0e0;
+			padding-top: 24px;
+			margin-top: 24px;
+		}
+		.disabled {text-decoration: line-through;}
+/*		.critical_endering_path .tabBtnBar{
+			position: fixed;
+			top: 0;
+		}*/
+		.tips p {
+			color: #09829a;
+			font-size: 20px;
+		}
+/*		.tips ul li {
+			float: left;
+			display: inline-block;
+			padding: 5px;
+		}*/
+/*		.tips ul li:after {
+			content: "|";
+			padding-left: 5px;
+		}*/
+
+		.tips:after {
+			content: '';
+			display: block;
+			height: 0;
+			overflow: hidden;
+			clear: both;
+		}
+		.tips ul {
+			float: left;
+		}
+		.tips ul li:first-child {
+			color: #fff;
+			background-color: #3372df;
+			border: 1px solid #1e5ac1;
+			padding: 5px;
+		}
+		</style>
+	</head>
+	<body>
+		<h1>Questions</h1>
+		<ul>
+			<li>How HTML gets converted into the DOM?</li>
+		</ul>
+		<h1>experts & organiaztion</h1>
+		<ul>
+			<li>
+				<h3><a href="http://www.w3.org/">http://www.w3.org/</a></h3>
+			</li>
+			<li>
+				<h3>W3C Web性能工作组</h3>
+				<p>吴小倩 xiaoqian@w3.org</p>
+				<p>发布Resouce Priorities, Resource Hints, Navigation Timing等规范</p>
+				<p>订阅public-web-perf@w3.org邮件组</p>
+			</li>
+		</ul>
+
+		<h1>links</h1>
+		<ul>
+			<li><a href="http://frontendbabel.info/articles/webpage-rendering-101/">http://frontendbabel.info/articles/webpage-rendering-101/</a></li>
+			<li><a href="http://code.oneapm.com/javascript/2015/08/03/oneheap/">http://code.oneapm.com/javascript/2015/08/03/oneheap/</a></li>
+			<li><a href="http://wyvernnot.github.io/javascript_performance_measurement/heap_snapshot/">OneHeap:JavaScript 堆内存分析新工具(.heapsnapshot文件)</a></li>
+			<li><a href="http://wyvernnot.github.io/javascript_performance_measurement/cpuprofile_topology/">OneProfile:JavaScript 性能分析新工具(.cpuprofile文件)</a></li>
+			<li><a href="http://www.infoq.com/cn/articles/webkit-for-developers">开发者需要了解的WebKit</a></li>
+			<li><a href="https://developers.google.com/web/fundamentals/performance/?hl=en">Optimizing Performance_GoogleDevelopers</a></li>
+		</ul>
+
+		<h1>concept</h1>
+		<div class="critical_endering_path">
+		<ul class="tabBtnBar">
+			<li>load,parse,paint</li>
+			<li>
+				<span data-tab="1" class="tabBtn">Loading</span>, 
+				<span data-tab="2" class="tabBtn">Parse HTML & Recalculate Style(building the DOM and CSSOM)</span>, 
+				<span data-tab="3" class="tabBtn">Rendering-tree construction</span>, 
+				<span data-tab="4" class="tabBtn">Layout (Reflow)</span>, 
+				<span data-tab="5" class="tabBtn">Painting (Rasterizing)</span>, 
+				<span data-tab="6" class="tabBtn">Scripting</span>, 
+				<span data-tab="7" class="tabBtn">Other</span></li>
+
+
+
+			
+
+
+		</ul>
+
+
+		<div class="tab">
+			<ul class="stage_load">
+				<li class="stage_tit"></li>
+				<li></li>
+				<li class="arrow_down"><span></span></li>
+			</ul>
+
+			<ul class="stage_parse">
+				<li class="stage_tit">></li>
+				<li class="square_list">01  Process HTML markup and build the DOM tree.</li>
+				<li><em>Document Object Model (DOM)</em> is formed from the HTML || <em>HTML markup</em> is transformed into a Document Object Model (DOM)</li>
+				<li>The final output of this entire process is the Document Object Model, or the “DOM” of our simple page, which the browser uses for all further processing of the page</li>
+				<li>Every time the browser has to process HTML markup it has to step through all of the steps above: convert <em>bytes</em> to <em>characters</em>, identify <em>tokens</em>, convert tokens to <em>nodes</em>, and build the <em>DOM tree</em>.</li>
+				<li><em>Parse HTML</em>: it took us ~5ms to convert a chunk of HTML bytes into a DOM tree</li>
+				<li>The DOM tree captures the <em>properties</em> and <em>relationships</em> of the document markup, but it does not tell us anything about how the element should look when rendered</li>
+
+				<li class="note_block square_list">02  Process CSS markup and build the CSSOM tree.</li>
+				<li >Styles are loaded and parsed, forming the <em>CSS Object Model (CSSOM)</em> || <em>CSS markup</em> is transformed into a CSS Object Model (CSSOM).</li>
+				<li>Anticipating that it will need this resource to render the page, it immediately dispatches a request for this resource</li>
+				<li>When computing the final set of styles for any object on the page, the browser starts with the most general rule applicable to that node (e.g. if it is a child of body element, then all body styles apply) and then recursively refines the computed styles by applying more specific rules - i.e. the rules <em>“cascade down”</em>.</li>
+				<li>Every browser provides a default set of styles also known as <em>“user agent styles”</em></li>
+				<li>By default, CSS is treated as <em>a render blocking resource</em>.
+				<li><em>Media types</em> and <em>media queries</em> allow us to mark some CSS resources as <em>non-render blocking</em>.</li>
+				<li>In fact, the experience on the right is often referred to as a “Flash of Unstyled Content” (<em>FOUC</em>)</li>
+				<li>our first stylesheet declaration does not provide any media type or query, hence it will apply in all cases - that is to say, it is always <em>render blocking</em></li>
+				<li> this stylesheet does not need to block the rendering of the page when it is first <em>loaded</em>. </li>
+				<li>if the conditions match, the browser will block rendering until the stylesheet is downloaded and processed.</li>
+				<li>Finally, note that <em>“render blocking”</em> only refers to whether the browser will have to hold the <em>initial rendering of the page</em> on that resource. In either case, the CSS asset is still downloaded by the browser, albeit with a lower priority for <em>non-blocking resources</em>.</li>
+</li>
+				<li><a href="http://www.iecss.com/">Internet Explorer User Agent Style Sheets</a></li>
+
+				<li class="note_block">Bytes → characters → tokens → nodes → <em>object model</em>.</li>
+				<li>DOM and CSSOM are independent data structures.</li>
+				<li>Before the browser can <em>render</em> the page it needs to construct the DOM and CSSOM trees</li>
+				<li><em>Chrome DevTools Timeline </em>allows us to capture and inspect the construction and processing costs of DOM and CSSOM.</li>
+				<li><a href="https://developers.google.com/web/fundamentals/performance/critical-rendering-path/constructing-the-object-model?hl=en">Constructing the Object Model_GoogleDevelopers</a></li>
+				<li class="arrow_down"><span></span></li>
+			</ul>
+
+			<ul class="stage_render">
+				<li class="stage_tit">></li>
+				<li class="square_list">03  Combine the DOM and CSSOM into a render tree.</li>
+				<li>the <em>render tree</em> that links the DOM and CSSOM together</li>
+				<li>The CSSOM and DOM trees are combined into a <em>render tree</em>, which is then used to compute the layout of each visible element and serves as an input to the <em>paint</em> process which renders the pixels to screen. </li>
+				<li>Each of <em>the rendering objects</em> contains its corresponding DOM object (or a text block) plus the calculated styles.</li>
+				<li>Render tree contains only the nodes required to render the page.</li>
+				<li>Some nodes are <em>not visible</em> at all (e.g. script tags, meta tags, and so on), and are omitted</li>
+				<li>Some nodes are <em>hidden</em> via CSS and are also omitted from the render tree - e.g. “display: none” </li>
+				<li class="arrow_down"><span></span></li>
+			</ul>
+
+			<ul class="stage_layout">
+				<li class="stage_tit"></li>
+				<li class="square_list">04  Run layout on the render tree to compute geometry of each node.</li>
+				<li>Layout computes the exact <em>position and size</em> of each object.</li>
+				<li>calculated their exact position and size within the viewport of the device - that’s the <em>“layout”</em> stage, also sometimes known as <em>“reflow”</em>.</li>
+				<li>The output of the layout process is a <em>“box model”</em> which precisely captures the exact position and size of each element within the viewport: all of the relative measures are converted to absolute pixels positions on the screen, and so on.</li>
+				<li class="tips">
+					<p>常见的重排元素</p>
+					<ul>
+						<li>Formatting Model（布局方式、位置）</li>
+						<li>position</li>
+						<li>top</li>
+						<li>right</li>
+						<li>left</li>
+						<li>bottom</li>
+						<li>float</li>
+						<li>display</li>
+						<li>overflow</li>
+						<li>overflow-y</li>
+						<li>clear</li>
+					</ul>
+					<ul>
+						<li>Box Model（尺寸）</li>
+						<li>broder</li>
+						<li>border-width</li>
+						<li>margin</li>
+						<li>padding</li>
+						<li>width</li>
+						<li>height</li>
+						<li>min-height</li>
+						<li>vertical-algin</li>
+					</ul>
+					<ul>
+						<li>Typographic（文本相关）</li>
+						<li>font-family</li>
+						<li>font-size</li>
+						<li>font-weight</li>
+						<li>line-height</li>
+						<li>text-align</li>
+						<li>white-space</li>
+					</ul>
+					<ul>
+						<li> Visual（视觉效果）</li>
+					</ul>
+				</li>
+				<li class="arrow_down"><span></span></li>
+			</ul>
+
+			<ul class="stage_paint">
+				<li class="stage_tit">></li>
+				<li class="square_list">05  Paint the individual nodes to the screen.</li>
+				<li>Paint is the last step that takes in the final render tree and renders the pixels to the screen.</li>
+				<li>this gets actually displayed in a browser window, a process called "<em>painting</em>"</li>
+				<li>we can finally pass this information to our final stage which will convert each node in the render tree to actual pixels on the screen</li>
+				<li class="tips">
+					<p>常见的重绘元素</p>
+					<ul>
+						<li>Formatting Model（布局方式、位置）</li>
+
+					</ul>
+					<ul>
+						<li>Box Model（尺寸）</li>
+						<li>border-style</li>
+						<li>border-radius</li>
+						<li>outline</li>
+						<li>outline-color</li>
+						<li>outline-style</li>
+						<li>outline-width</li>
+						<li>box-shadow</li>
+					</ul>
+					<ul>
+						<li>Typographic（文本相关）</li>
+						<li>text-decoration</li>
+					</ul>
+					<ul>
+						<li> Visual（视觉效果）</li>
+						<li>background</li>
+						<li>background-image</li>
+						<li>background-position</li>
+						<li>background-repeat</li>
+						<li>backgournd-size</li>
+						<li>color</li>
+						<li>visibility</li>
+					</ul>
+				</li>
+				<li class="arrow_down"><span></span></li>
+			</ul>
+			<ul class="stage_script">
+				<li class="stage_tit">></li>
+				<li></li>
+			</ul>
+			<ul class="stage_other">
+				<li class="stage_tit">></li>
+				<li>the browser just repaints the element again with the new styles applied (that means a "<em>repaint</em>" or "<em>restyle</em>" is happening).</li>
+				<li>When the changes affect document contents or structure, or element position, a <em>reflow</em> (or <em>relayout</em>) happens</li>
+				<li></li>
+			</ul>
+		</div>
+		</div>
+
+		<script src="zepto.js"></script>
+		<script>
+
+		var colorArr = [
+			'#05AFED',
+			'#84C0F2',
+			'#703798',
+			'#A278D6',
+			'#01E06D',
+			'#FFCA4C',
+			'gray',
+			'#F37B84',
+
+			'#713899',
+			'#FF8C37'
+		];
+
+		var tabBtnText = [];
+		$.each($('.tabBtn'), function(k, v){
+			// console.log(v);
+			tabBtnText.push(v.innerHTML);
+			// v.css({color: colorArr[k]});
+			var color = colorArr[k];
+			v.setAttribute('style', 'color:' + color);
+		});
+
+		console.log(tabBtnText);
+
+		$.each($('.tab').children('ul'), function(k, v){
+			console.log(v);
+			var color = colorArr[k];
+			v.setAttribute('style', 'border-left: 5px solid ' + color);
+
+			v.firstElementChild.innerHTML = tabBtnText[k];
+			v.firstElementChild.setAttribute('style', 'background-color: ' + colorArr[k]);
+
+			if(v.lastElementChild.children[0]) {
+				v.lastElementChild.setAttribute('style', 'border-bottom: 5px solid ' + color +';' + 'margin-left: -10px');
+				v.lastElementChild.children[0].setAttribute('style', 'border-left: 5px solid ' + color);
+			}
+
+
+		});
+
+		$('body').scrollTop();
+
+
+
+		$('.tabBtn').on('click', function(){
+			var index = $(this).data('tab');
+			$(this).toggleClass('disabled')
+			var D_tab = $('.tab').find('ul:nth-child('+ index + ')');
+			D_tab.toggle();
+		});
+
+
+		</script>
+	</body>
+</html>
